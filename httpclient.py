@@ -48,7 +48,6 @@ class HTTPClient(object):
             port = 80
         path = info.path
    
-        print "get host port is",host,port,path
         return host,port,path
 
     def connect(self, host, port):
@@ -62,14 +61,15 @@ class HTTPClient(object):
             
         return client
 
+    #get status code
     def get_code(self, data):
         status_code = int(data.split()[1])
         return status_code
-
+    #get the headers of response
     def get_headers(self,data):
         info = data.split('\r\n\r\n')[0]
         return info[0]
-
+    #get the body of reponse
     def get_body(self, data):
         body = data.split("\r\n\r\n")[1]
         return body
@@ -92,14 +92,13 @@ class HTTPClient(object):
         code = 500
         body = ""
         host,port,path = self.get_host_port(url)
-        #print host, port, path
         client = self.connect(host,port)
         request = "GET "+path+" HTTP/1.1\r\nHost: " +host+ "\r\n\r\n"
-        print "checking rquest",request
+ 
         client.sendall(request)
         read_data = self.recvall(client)
+        print read_data     #printing response for GET
         code = self.get_code(read_data)
-        print "get code",code
         body = self.get_body(read_data)
         return HTTPResponse(code, body)
 
@@ -114,12 +113,12 @@ class HTTPClient(object):
                   "Host: "+ host + "\r\n"\
                   "Content-Type: application/x-www-form-urlencoded;charset=utf-8\r\n"\
                   "Content-Length: " + str(len(encode)) +"\r\n\r\n"+ encode
-        print "checking rquest",request
+        
         client = self.connect(host,port)
         client.sendall(request)
         read_data = self.recvall(client)
+        print read_data     #printing response for POST
         code = self.get_code(read_data)
-        
         body = self.get_body(read_data)
         return HTTPResponse(code, body)
 
